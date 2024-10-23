@@ -86,7 +86,7 @@ with st.sidebar:
         unsafe_allow_html=True
     )
 
-    time = st.sidebar.selectbox("", ["제주", "서귀포", "성산"], key="time")
+    place = st.sidebar.selectbox("", ["제주", "서귀포", "성산"], key="place")
 
     st.write("")
 
