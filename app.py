@@ -13,13 +13,14 @@ import streamlit as st
 data_path = './data'
 module_path = './modules'
 
+
 # Gemini 설정
 import google.generativeai as genai
 
 # import shutil
 # os.makedirs("/root/.streamlit", exist_ok=True)
 # shutil.copy("secrets.toml", "/root/.streamlit/secrets.toml")
-# 어렵다 어려워.....
+# 어렵다 어려워...z..
 # GOOGLE_API_KEY = st.secrets["GOOGLE_API_KEY"]
 
 genai.configure(api_key="AIzaSyDIYgGSW1JnXWtqmPjSA7YR9-A4xz7-YYg")
