@@ -185,28 +185,21 @@ def embed_text(text):
 # 임베딩 로드
 embeddings = np.load(os.path.join(module_path, 'embeddings_array_file.npy'))
 
+### Generator 영역 ###
+
 def generate_response_with_faiss(question, df, embeddings, model, embed_text, time, local_choice, index_path=os.path.join(module_path, 'faiss_index.index'), max_count=10, k=3, print_prompt=True):
+    # 데이터 프레임 초기화
     filtered_df = df
-
-    # FAISS 인덱스를 파일에서 로드
+    
+    # FAISS 인덱스를 로드하고 쿼리 임베딩 생성
     index = load_faiss_index(index_path)
-
-    # 검색 쿼리 임베딩 생성
     query_embedding = embed_text(question).reshape(1, -1)
-
-    # 가장 유사한 텍스트 검색 (3배수)
-    distances, indices = index.search(query_embedding, k*3)
-
-    # FAISS로 검색된 상위 k개의 데이터프레임 추출
+    
+    # 유사한 텍스트 검색
+    distances, indices = index.search(query_embedding, k * 3)
     filtered_df = filtered_df.iloc[indices[0, :]].copy().reset_index(drop=True)
 
-
-    # 웹페이지의 사이드바에서 선택하는 영업시간, 현지인 맛집 조건 구현
-
-    # 영업시간 옵션
-    # 필터링 조건으로 활용
-
-    # 영업시간 조건을 만족하는 가게들만 필터링
+    # 시간대 필터링 조건 추가
     if time == '아침':
         filtered_df = filtered_df[filtered_df['영업시간'].apply(lambda x: isinstance(eval(x), list) and any(hour in eval(x) for hour in range(5, 12)))].reset_index(drop=True)
     elif time == '점심':
@@ -218,44 +211,55 @@ def generate_response_with_faiss(question, df, embeddings, model, embed_text, ti
     elif time == '밤':
         filtered_df = filtered_df[filtered_df['영업시간'].apply(lambda x: isinstance(eval(x), list) and any(hour in eval(x) for hour in [23, 24, 1, 2, 3, 4]))].reset_index(drop=True)
 
-    # 필터링 후 가게가 없으면 메시지를 반환
+    # 필터링 후 데이터가 없으면 알림 메시지 반환
     if filtered_df.empty:
         return f"현재 선택하신 시간대({time})에는 영업하는 가게가 없습니다."
 
+    # 상위 k개의 결과만 사용
     filtered_df = filtered_df.reset_index(drop=True).head(k)
 
-
-    # 현지인 맛집 옵션
-
-    # 프롬프트에 반영하여 활용
+    # 현지인 맛집인지 관광객 맛집인지 필터링 추가
     if local_choice == '제주도민 맛집':
         local_choice = '제주도민(현지인) 맛집'
     elif local_choice == '관광객 맛집':
         local_choice = '현지인 비중이 낮은 관광객 맛집'
 
-    # 선택된 결과가 없으면 처리
-    if filtered_df.empty:
-        return "질문과 일치하는 가게가 없습니다."
-
-
-    # 참고할 정보와 프롬프트 구성
+    # 사용자 맞춤형 추천 정보 생성
     reference_info = ""
     for idx, row in filtered_df.iterrows():
-        reference_info += f"{row['text']}\n"
+        # 기본 가게 정보 구성
+        store_name = row['가맹점명']
+        location = row['가맹점주소']
+        category = row['가맹점업종']
+        opening_date = row['가맹점개설일자']
+        usage_amount_range = row['이용금액구간']
+        local_ratio = row['현지인이용건수비중']
 
-    # 응답을 받아오기 위한 프롬프트 생성
+        # 추천 정보 포맷
+        reference_info += f"**{store_name}**\n위치: {location}\n업종: {category}\n개업일: {opening_date}\n"
+        reference_info += f"가격대: {usage_amount_range}\n"
+
+        # 현지인 비율을 통해 현지인 맛집인지 관광객 맛집인지 설명 추가
+        if local_ratio > 0.5:
+            reference_info += "이곳은 현지인들이 자주 찾는 맛집입니다. 현지인 비율이 높아 진정한 제주 맛을 즐길 수 있는 곳으로 유명합니다.\n"
+        else:
+            reference_info += "이곳은 관광객들에게 인기가 많습니다. 제주에서 편안히 관광을 즐기며 음식을 즐길 수 있는 곳입니다.\n"
+
+        # 메뉴 및 기타 정보
+        reference_info += f"주요 메뉴 및 특징: {row['text']}\n\n"
+
+    # 프롬프트 생성
     prompt = f"질문: {question} 특히 {local_choice}을 선호해\n참고할 정보:\n{reference_info}\n응답:"
 
+    # 프롬프트가 잘 생성되었는지 확인
     if print_prompt:
         print('-----------------------------'*3)
         print(prompt)
         print('-----------------------------'*3)
 
-    # 응답 생성
+    # 모델을 통해 응답 생성
     response = model.generate_content(prompt)
-
     return response
-
 
 # User-provided prompt
 if prompt := st.chat_input(): # (disabled=not replicate_api):
