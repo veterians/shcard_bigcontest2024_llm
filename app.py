@@ -75,30 +75,6 @@ with st.sidebar:
     st.markdown(
         """
         <style>
-        .stRadio > label {
-            display: none;
-        }
-        .stRadio > div {
-            margin-top: -20px;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-
-    local_choice = st.radio(
-        '',
-        ('제주도민 맛집', '관광객 맛집')
-    )
-
-    st.write("")
-
-    st.subheader("어드레 가신?")
-
-    # selectbox 레이블 공백 제거
-    st.markdown(
-        """
-        <style>
         .stSelectbox label {  /* This targets the label element for selectbox */
             display: none;  /* Hides the label element */
         }
@@ -110,7 +86,10 @@ with st.sidebar:
         unsafe_allow_html=True
     )
 
-    time = st.sidebar.selectbox("", ["제주시", "서귀포시", "성산"], key="time")
+    time = st.sidebar.selectbox("", ["제주", "서귀포", "성산"], key="time")
+
+    st.write("")
+
 
     st.write("")
 
