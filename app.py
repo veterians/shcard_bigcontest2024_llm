@@ -47,7 +47,7 @@ with st.sidebar:
     st.title("🍊참신한! 제주 맛집")
 
     st.write("")
-
+     
     st.subheader("언드레 가신디가?")
 
     # selectbox 레이블 공백 제거
@@ -92,6 +92,42 @@ with st.sidebar:
     )
 
     st.write("")
+
+    st.subheader("어드레 가신?")
+
+    # selectbox 레이블 공백 제거
+    st.markdown(
+        """
+        <style>
+        .stSelectbox label {  /* This targets the label element for selectbox */
+            display: none;  /* Hides the label element */
+        }
+        .stSelectbox div[role='combobox'] {
+            margin-top: -20px; /* Adjusts the margin if needed */
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+    time = st.sidebar.selectbox("", ["제주시", "서귀포시", "성산"], key="time")
+
+    st.write("")
+
+     # radio 레이블 공백 제거
+    st.markdown(
+        """
+        <style>
+        .stRadio > label {
+            display: none;
+        }
+        .stRadio > div {
+            margin-top: -20px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
 st.title("혼저 옵서예!👋")
 st.subheader("군맛난 제주 밥집🧑‍🍳 추천해드릴게예")
