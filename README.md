@@ -13,7 +13,7 @@
 <br>
 
 ### 실행 결과 (서비스 웹 페이지)
-https://shcard-bigcontest-2024-llm.streamlit.app/
+https://hyuntan.streamlit.app/
 
 - 위 웹 페이지는 Streamlit Cloud를 이용해 배포되었습니다.
 - Streamlit Cloud를 활용하면 별도 서버없이 무료로 웹페이지 배포가 가능하며, 대회 진행을 위해 사용하셔도 좋습니다.
